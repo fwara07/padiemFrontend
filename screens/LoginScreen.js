@@ -64,6 +64,8 @@ const LoginScreen = ({ navigation, loginSuccess }) => {
       .catch((error) => console.error(error));
   };
   return (
+    <>
+    {loading ? <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}><ActivityIndicator size="large" color="blue"/></View> :
     <KeyboardAvoidingView style={styles.containerView} behavior="padding">
       <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
         <View style={styles.screenContainer}>
@@ -89,7 +91,6 @@ const LoginScreen = ({ navigation, loginSuccess }) => {
               value={password}
               secureTextEntry={true}
             />
-            <ActivityIndicator size="small" color="blue" animating={loading} />
             <Button
               buttonStyle={styles.btn}
               onPress={handleSubmit}
@@ -104,6 +105,8 @@ const LoginScreen = ({ navigation, loginSuccess }) => {
         </View>
       </TouchableWithoutFeedback>
     </KeyboardAvoidingView>
+    }
+    </>
   );
 };
 

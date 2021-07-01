@@ -15,6 +15,8 @@ import {
 import { Button, Input } from "react-native-elements";
 
 const SignupScreen = ({ navigation }) => {
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -31,9 +33,26 @@ const SignupScreen = ({ navigation }) => {
     if (reEmail.test(email)) {
       if (rePassword.test(password)) {
         if (password == confirmPassword) {
-          return true;
+          if (firstName.length > 0) {
+            if (lastName.length > 0) {
+              return true;
+            } else {
+              setLastName("");
+              setRenderMsg({
+                msg: "Last Name cannot be empty.",
+                type: "lasttName",
+              });
+            }
+          } else {
+            setFirstName("");
+            setRenderMsg({
+              msg: "First Name cannot be empty.",
+              type: "firstName",
+            });
+          }
         } else {
           setPassword("");
+          setConfirmPassword("");
           setRenderMsg({
             msg: "Passwords do not match.",
             type: "cPassword",
@@ -74,6 +93,8 @@ const SignupScreen = ({ navigation }) => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          first_name: firstName,
+          last_name: lastName,
           email: email,
           password: password,
         }),
@@ -118,59 +139,111 @@ const SignupScreen = ({ navigation }) => {
       type: "",
     });
   };
+
+  const handleFirstName = (firstName) => {
+    setFirstName(firstName);
+    setRenderMsg({
+      msg: "",
+      type: "",
+    });
+  };
+
+  const handleLastName = (lastName) => {
+    setLastName(lastName);
+    setRenderMsg({
+      msg: "",
+      type: "",
+    });
+  };
+
   return (
-    <KeyboardAvoidingView style={styles.containerView} behavior="padding">
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.screenContainer}>
-          <View style={styles.formView}>
-            <Text style={styles.logoText}>Sign Up</Text>
-            <Input
-              textContentType="emailAddress"
-              keyboardType="email-address"
-              autoCompleteType="email"
-              placeholder="Email"
-              placeholderColor="#c4c3cb"
-              style={styles.formTextInput}
-              value={email}
-              onChangeText={handleEmailChange}
-              errorMessage={renderMsg.type === "email" && renderMsg.msg}
-              errorStyle={{ color: "red" }}
-            />
-            <Input
-              placeholder="Password"
-              placeholderColor="#c4c3cb"
-              style={styles.formTextInput}
-              secureTextEntry={true}
-              value={password}
-              onChangeText={handlePasswordChange}
-              errorMessage={renderMsg.type === "password" && renderMsg.msg}
-              errorStyle={{ color: "red" }}
-            />
-            <Input
-              placeholder="Confirm Password"
-              placeholderColor="#c4c3cb"
-              style={styles.formTextInput}
-              secureTextEntry={true}
-              value={confirmPassword}
-              onChangeText={handleConfirmPasswordChange}
-              errorMessage={renderMsg.type === "cPassword" && renderMsg.msg}
-              errorStyle={{ color: "red" }}
-            />
-            <ActivityIndicator size="small" color="blue" animating={loading} />
-            <Button
-              buttonStyle={styles.btn}
-              onPress={handleSubmit}
-              title="Sign Up"
-            />
-            <Button
-              title="Already have an account? Login"
-              type="clear"
-              onPress={() => navigation.navigate("Login")}
-            />
-          </View>
+    <>
+      {loading ? (
+        <View
+          style={{ flex: 1, alignItems: "center", justifyContent: "center" }}
+        >
+          <ActivityIndicator size="large" color="blue" />
         </View>
-      </TouchableWithoutFeedback>
-    </KeyboardAvoidingView>
+      ) : (
+        <KeyboardAvoidingView style={styles.containerView} behavior="padding">
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+            <View style={styles.screenContainer}>
+              <View style={styles.formView}>
+                <Text style={styles.logoText}>Sign Up</Text>
+                <View style={{ flexDirection: "row" }}>
+                  <Input
+                    placeholder="First Name"
+                    placeholderColor="#c4c3cb"
+                    containerStyle={{ width: "50%" }}
+                    style={styles.formTextInput}
+                    value={firstName}
+                    onChangeText={handleFirstName}
+                    errorMessage={
+                      renderMsg.type === "firstName" && renderMsg.msg
+                    }
+                    errorStyle={{ color: "red" }}
+                  />
+                  <Input
+                    placeholder="Last Name"
+                    placeholderColor="#c4c3cb"
+                    containerStyle={{ width: "50%" }}
+                    style={styles.formTextInput}
+                    value={lastName}
+                    onChangeText={handleLastName}
+                    errorMessage={
+                      renderMsg.type === "lasttName" && renderMsg.msg
+                    }
+                    errorStyle={{ color: "red" }}
+                  />
+                </View>
+                <Input
+                  textContentType="emailAddress"
+                  keyboardType="email-address"
+                  autoCompleteType="email"
+                  placeholder="Email"
+                  placeholderColor="#c4c3cb"
+                  style={styles.formTextInput}
+                  value={email}
+                  onChangeText={handleEmailChange}
+                  errorMessage={renderMsg.type === "email" && renderMsg.msg}
+                  errorStyle={{ color: "red" }}
+                />
+                <Input
+                  placeholder="Password"
+                  placeholderColor="#c4c3cb"
+                  style={styles.formTextInput}
+                  secureTextEntry={true}
+                  value={password}
+                  onChangeText={handlePasswordChange}
+                  errorMessage={renderMsg.type === "password" && renderMsg.msg}
+                  errorStyle={{ color: "red" }}
+                />
+                <Input
+                  placeholder="Confirm Password"
+                  placeholderColor="#c4c3cb"
+                  style={styles.formTextInput}
+                  secureTextEntry={true}
+                  value={confirmPassword}
+                  onChangeText={handleConfirmPasswordChange}
+                  errorMessage={renderMsg.type === "cPassword" && renderMsg.msg}
+                  errorStyle={{ color: "red" }}
+                />
+                <Button
+                  buttonStyle={styles.btn}
+                  onPress={handleSubmit}
+                  title="Sign Up"
+                />
+                <Button
+                  title="Already have an account? Login"
+                  type="clear"
+                  onPress={() => navigation.navigate("Login")}
+                />
+              </View>
+            </View>
+          </TouchableWithoutFeedback>
+        </KeyboardAvoidingView>
+      )}
+    </>
   );
 };
 

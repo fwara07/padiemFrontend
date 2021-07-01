@@ -1,5 +1,5 @@
 import React, { useReducer, useEffect } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Icon } from "react-native-elements";
 import { NavigationContainer } from "@react-navigation/native";
 import { createStackNavigator } from "@react-navigation/stack";
 import LoginScreen from "./screens/LoginScreen";
@@ -8,11 +8,13 @@ import HomeScreen from "./screens/HomeScreen";
 import * as SecureStore from "expo-secure-store";
 import SplashScreen from "./screens/SplashScreen";
 import Settings from "./screens/Settings";
-import Receipts from "./screens/Receipts";
+import Missions from "./screens/Missions";
+import CreateMission from "./screens/CreateMission";
+import Export from "./screens/Export";
 
 const Stack = createStackNavigator();
 
-const App = () => {
+const App = ({ navigation }) => {
   const [state, dispatch] = useReducer(
     (prevState, action) => {
       switch (action.type) {
@@ -49,12 +51,6 @@ const App = () => {
       userToken: null,
     }
   );
-
-  // const getToken = async () => {
-  //   const result =
-  //   return result;
-  // };
-
   useEffect(() => {
     const verifyToken = async () => {
       const token = await SecureStore.getItemAsync("token");
@@ -95,14 +91,6 @@ const App = () => {
   };
 
   return (
-    // <NavigationContainer>
-    //   <Stack.Navigator initialRouteName={"Login"}>
-    //     <Stack.Screen name="Login" component={LoginScreen} />
-    //     <Stack.Screen name="Signup" component={SignupScreen} />
-    //     <Stack.Screen name="Home" component={HomeScreen} />
-    //     <Stack.Screen name="WaitingScreen" component={HomeScreen} />
-    //   </Stack.Navigator>
-    // </NavigationContainer>
     <NavigationContainer>
       <Stack.Navigator>
         {state.isLoading ? (
@@ -122,11 +110,27 @@ const App = () => {
           </>
         ) : (
           <>
-            <Stack.Screen name="Home" component={HomeScreen} />
+            <Stack.Screen
+              name="Home"
+              component={HomeScreen}
+              options={({ navigation }) => ({
+                headerRight: () => (
+                  <Icon
+                    color="black"
+                    name="settings"
+                    onPress={() => navigation.navigate("Settings")}
+                    containerStyle={{ marginRight: 10 }}
+                    size={35}
+                  />
+                ),
+              })}
+            />
             <Stack.Screen name="Settings">
               {(props) => <Settings logoutSuccess={logoutSuccess} {...props} />}
             </Stack.Screen>
-            <Stack.Screen name="Receipts" component={Receipts} />
+            <Stack.Screen name="Export" component={Export} />
+            <Stack.Screen name="Missions" component={Missions} />
+            <Stack.Screen name="Create Mission" component={CreateMission} />
           </>
         )}
       </Stack.Navigator>

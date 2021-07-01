@@ -8,7 +8,7 @@ export default {
   logoText: {
     fontSize: 40,
     fontWeight: "800",
-    marginTop: 100,
+    marginTop: 50,
     marginBottom: 30,
     textAlign: "center",
   },
@@ -16,8 +16,8 @@ export default {
     flex: 1,
   },
   formTextInput: {
-    marginTop: 20,
-    marginBottom: 20,
+    marginTop: 10,
+    marginBottom: 10,
   },
   btn: {
     backgroundColor: "#3897f1",
