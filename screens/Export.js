@@ -71,7 +71,7 @@ const Export = ({ navigation }) => {
           } else {
             setLoading(false);
             console.log(json);
-            setReportUrl("data:application/pdf;base64," + json.pdf);
+            setReportUrl("data:application/pdf;base64," + String(json.pdf));
             console.log(reportUrl);
             const base64Code = reportUrl.split(
               "data:application/pdf;base64,"

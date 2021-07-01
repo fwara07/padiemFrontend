@@ -72,120 +72,119 @@ const Missions = ({ route, navigation }) => {
   };
 
   const sendReceipt = async (type, filename) => {
-    if (validate()) {
-      let token = await SecureStore.getItemAsync("token");
-      console.log(`JWT ${JSON.parse(token)}`);
-      console.log(uri);
-      let formData = new FormData();
-      formData.append("image", { uri: uri, name: filename, type: type });
-      formData.append("category", category), formData.append("mission", value);
-      console.log(formData);
-      return await fetch(
-        "https://pardiembackend.herokuapp.com/api/obtain-img",
-        {
-          method: "POST",
-          headers: {
-            "content-type": "multipart/form-data",
-            Authorization: `JWT ${JSON.parse(token)}`,
-          },
-          body: formData,
-        }
-      )
-        .then((res) => res.json())
-        .then((json) => {
-          if (json.hasOwnProperty("msg")) {
-            setModalLoad(false);
-            Alert.alert(json.msg);
-            setImage(null);
-            setLoading(false);
-          } else {
-            setModalLoad(false);
-            Alert.alert(json.succes);
-            console.log(json);
-            setLoading(false);
-          }
-        })
-        .catch((error) => console.error(error));
-    }
-  };
-
-  const uploadImg = async () => {
-    setModalLoad(true);
     let token = await SecureStore.getItemAsync("token");
-    fetch("https://pardiembackend.herokuapp.com/api/get-s3-info", {
-      method: "GET",
+    console.log(`JWT ${JSON.parse(token)}`);
+    console.log(uri);
+    let formData = new FormData();
+    formData.append("image", { uri: uri, name: filename, type: type });
+    formData.append("category", category), formData.append("mission", value);
+    console.log(formData);
+    return await fetch("https://pardiembackend.herokuapp.com/api/obtain-img", {
+      method: "POST",
       headers: {
+        "content-type": "multipart/form-data",
         Authorization: `JWT ${JSON.parse(token)}`,
       },
+      body: formData,
     })
       .then((res) => res.json())
       .then((json) => {
-        let filename = uri.split("/").pop();
-        let match = /\.(\w+)$/.exec(filename);
-        let type = match ? `image/${match[1]}` : `image`;
-        var AWS = require("aws-sdk");
-        var s3 = new AWS.S3({
-          accessKeyId: json.acess_key,
-          secretAccessKey: json.secret_acess_key,
-          region: json.region,
-        });
-        console.log(s3);
+        if (json.hasOwnProperty("msg")) {
+          setModalLoad(false);
+          Alert.alert(json.msg);
+          setImage(null);
+          setLoading(false);
+        } else {
+          setModalLoad(false);
+          Alert.alert(json.succes);
+          console.log(json);
+          setLoading(false);
+        }
+      })
+      .catch((error) => console.error(error));
+  };
 
-        var params = {
-          Bucket: "pardiem-assets",
-          Key: filename,
-          ContentType: type,
-        };
-        s3.getSignedUrl(
-          "putObject",
-          params,
-          (err, url) => {
-            const xhr = new XMLHttpRequest();
-            xhr.open("PUT", url);
-            xhr.onreadystatechange = function () {
-              if (xhr.readyState === 4) {
-                if (xhr.status === 200) {
-                  sendReceipt(type, filename);
-                } else {
-                  console.log("Error while sending the image to S3");
+  const uploadImg = async () => {
+    if (validate()) {
+      setModalLoad(true);
+      let token = await SecureStore.getItemAsync("token");
+      fetch("https://pardiembackend.herokuapp.com/api/get-s3-info", {
+        method: "GET",
+        headers: {
+          Authorization: `JWT ${JSON.parse(token)}`,
+        },
+      })
+        .then((res) => res.json())
+        .then((json) => {
+          let filename = uri.split("/").pop();
+          let match = /\.(\w+)$/.exec(filename);
+          let type = match ? `image/${match[1]}` : `image`;
+          var AWS = require("aws-sdk");
+          var s3 = new AWS.S3({
+            accessKeyId: json.acess_key,
+            secretAccessKey: json.secret_acess_key,
+            region: json.region,
+          });
+          console.log(s3);
+
+          var params = {
+            Bucket: "pardiem-assets",
+            Key: filename,
+            ContentType: type,
+          };
+          s3.getSignedUrl(
+            "putObject",
+            params,
+            (err, url) => {
+              const xhr = new XMLHttpRequest();
+              xhr.open("PUT", url);
+              xhr.onreadystatechange = function () {
+                if (xhr.readyState === 4) {
+                  if (xhr.status === 200) {
+                    sendReceipt(type, filename);
+                  } else {
+                    console.log("Error while sending the image to S3");
+                  }
                 }
-              }
-            };
-            xhr.setRequestHeader("Content-Type", type);
-            xhr.send({ uri: uri, type: type, name: filename });
-          },
-          (error) => console.log(error)
-        );
-      });
-    // let token = await SecureStore.getItemAsync("token");
-    // let filename = uri.split("/").pop();
-    // let match = /\.(\w+)$/.exec(filename);
-    // let type = match ? `image/${match[1]}` : `image`;
-    // var xhr = new XMLHttpRequest();
-    // xhr.open(
-    //   "GET",
-    //   "https://pardiembackend.herokuapp.com/api/sign_s3?file_name=" +
-    //     filename +
-    //     "&file_type=" +
-    //     type
-    // );
-    // xhr.setRequestHeader("Authorization", `JWT ${JSON.parse(token)}`);
-    // xhr.setRequestHeader("content-type", type);
-    // xhr.onreadystatechange = function () {
-    //   if (xhr.readyState === 4) {
-    //     if (xhr.status === 200) {
-    //       var response = JSON.parse(xhr.responseText);
-    //       uploadFile(
-    //         { uri: uri, name: filename, type: type },
-    //         response.data,
-    //         response.url
-    //       );
-    //     } else {
-    //       alert("Could not get signed URL.");
-    //     }
-    //   }
-    // };
-    // xhr.send();
+              };
+              xhr.setRequestHeader("Content-Type", type);
+              xhr.send({ uri: uri, type: type, name: filename });
+            },
+            (error) => console.log(error)
+          );
+        });
+      // let token = await SecureStore.getItemAsync("token");
+      // let filename = uri.split("/").pop();
+      // let match = /\.(\w+)$/.exec(filename);
+      // let type = match ? `image/${match[1]}` : `image`;
+      // var xhr = new XMLHttpRequest();
+      // xhr.open(
+      //   "GET",
+      //   "https://pardiembackend.herokuapp.com/api/sign_s3?file_name=" +
+      //     filename +
+      //     "&file_type=" +
+      //     type
+      // );
+      // xhr.setRequestHeader("Authorization", `JWT ${JSON.parse(token)}`);
+      // xhr.setRequestHeader("content-type", type);
+      // xhr.onreadystatechange = function () {
+      //   if (xhr.readyState === 4) {
+      //     if (xhr.status === 200) {
+      //       var response = JSON.parse(xhr.responseText);
+      //       uploadFile(
+      //         { uri: uri, name: filename, type: type },
+      //         response.data,
+      //         response.url
+      //       );
+      //     } else {
+      //       alert("Could not get signed URL.");
+      //     }
+      //   }
+      // };
+      // xhr.send();
+    } else {
+      setLoading(false);
+    }
   };
 
   // const uploadFile = (file, s3Data, url) => {
