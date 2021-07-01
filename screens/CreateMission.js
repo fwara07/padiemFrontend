@@ -29,15 +29,16 @@ const CreateMission = ({ navigation }) => {
   const [errorDate, setErrorDate] = useState(false);
   const [errorNameMsg, setErrorNameMsg] = useState("");
   const validate = () => {
+    console.log(Object.keys(selectedRange).length === 0);
     if (name === "") {
       setErrorNameMsg("Mission name connot be empty.");
       return false;
-    } else if (Object.keys(selectedRange).length === 0) {
+    }
+    if (Object.keys(selectedRange).length === 0) {
       setErrorDate(true);
       return false;
-    } else {
-      return true;
     }
+    return true;
   };
 
   const submit = async () => {
@@ -84,6 +85,8 @@ const CreateMission = ({ navigation }) => {
           });
         })
         .catch((erorr) => console.error(erorr));
+    } else {
+      setLoading(false);
     }
   };
 
