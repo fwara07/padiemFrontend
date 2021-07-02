@@ -49,6 +49,25 @@ const Export = ({ navigation }) => {
     }
   };
 
+  const shareFile = async (json) => {
+    if (json.hasOwnProperty("msg")) {
+      Alert.alert(json.msg);
+    } else {
+      setLoading(false);
+      console.log(json);
+      const reportUrl = "data:application/pdf;base64," + String(json.pdf);
+      console.log(reportUrl);
+      const base64Code = reportUrl.split("data:application/pdf;base64,")[1];
+      const filename = FileSystem.documentDirectory + "report.pdf";
+      console.log(base64Code);
+      await FileSystem.writeAsStringAsync(filename, base64Code, {
+        encoding: FileSystem.EncodingType.Base64,
+      });
+      const _mediaResult = await MediaLibrary.saveToLibraryAsync(filename);
+      await Sharing.shareAsync(filename);
+    }
+  };
+
   const exportReport = async () => {
     if (validate()) {
       setLoading(true);
@@ -62,27 +81,8 @@ const Export = ({ navigation }) => {
         body: JSON.stringify({ note: note, mission: value }),
       })
         .then((res) => res.json())
-        .then(async (json) => {
-          if (json.hasOwnProperty("msg")) {
-            Alert.alert(json.msg);
-          } else {
-            setLoading(false);
-            console.log(json);
-            const reportUrl = "data:application/pdf;base64," + String(json.pdf);
-            console.log(reportUrl);
-            const base64Code = reportUrl.split(
-              "data:application/pdf;base64,"
-            )[1];
-            const filename = FileSystem.documentDirectory + "report.pdf";
-            console.log(base64Code);
-            await FileSystem.writeAsStringAsync(filename, base64Code, {
-              encoding: FileSystem.EncodingType.Base64,
-            });
-            const _mediaResult = await MediaLibrary.saveToLibraryAsync(
-              filename
-            );
-            await Sharing.shareAsync(filename);
-          }
+        .then((json) => {
+          shareFile(json);
         })
         .catch((error) => console.error(error));
     }
