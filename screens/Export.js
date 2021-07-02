@@ -9,8 +9,6 @@ import DropDownPicker from "react-native-dropdown-picker";
 
 const Export = ({ navigation }) => {
   const [loading, setLoading] = useState(false);
-  const [reportUrl, setReportUrl] = useState("");
-  const [missions, setMissions] = useState([]);
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState(null);
   const [items, setItems] = useState([]);
@@ -30,7 +28,6 @@ const Export = ({ navigation }) => {
         .then((json) => {
           console.log(json);
           const items = [];
-          setMissions(json);
           json.map((mission) => {
             items.push({ label: mission.name, value: mission.name });
           });
@@ -71,7 +68,7 @@ const Export = ({ navigation }) => {
           } else {
             setLoading(false);
             console.log(json);
-            setReportUrl("data:application/pdf;base64," + String(json.pdf));
+            const reportUrl = "data:application/pdf;base64," + String(json.pdf);
             console.log(reportUrl);
             const base64Code = reportUrl.split(
               "data:application/pdf;base64,"
